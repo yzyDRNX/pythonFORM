@@ -1,27 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
+import re
 
-def guardar_datos():
-    nombres = entry_nombres.get()
-    apellidos = entry_apellidos.get()
-    edad = entry_edad.get()
-    estatura = entry_estatura.get()
-    telefono = entry_telefono.get()
-    genero = ""
-    if var_genero.get() == 1:
-        genero = "Hombre"
-    elif var_genero.get() == 2:
-        genero = "Mujer"
-
-    # Crear una cadena con los datos
-    datos = "Nombres: "+nombres+"\nApellidos: "+apellidos+"\nEdad: "+edad+" años\nEstatura: "+estatura+" cm\nTelefono: "+telefono+"\nGénero: "+genero
-
-    # Guardar los datos en un archivo de texto
-    with open("datos99.txt", "a") as archivo:
-        archivo.write(datos + "\n\n")
-
-    # Mostrar un mensaje con los datos capturados
-    messagebox.showinfo("Información", "Datos guardados con éxito:\n\n" + datos)
 
 def limpiar_campos():
     entry_nombres.delete(0, tk.END)
@@ -31,9 +11,52 @@ def limpiar_campos():
     entry_telefono.delete(0, tk.END)
     var_genero.set(0)
 
-def borrar_campos():
-    limpiar_campos()
+def guardar_datos():
+    nombres = entry_nombres.get()
+    apellidos = entry_apellidos.get()
+    edad = entry_edad.get()
+    estatura = entry_estatura.get()
+    telefono = entry_telefono.get()
 
+    # Obtener el género
+    genero = ""
+    if var_genero.get() == 1:
+        genero = "Hombre"
+    elif var_genero.get() == 2:
+        genero = "Mujer"
+    
+    #Validar que los campos tengan el fomrato correcto
+    if (es_entero_valido(edad) and es_decimal_valido(estatura) and es_entero_valido_de_10_digitos(telefono) and es_texto_valido(nombres) and es_texto_valido(apellidos)):
+        # Crear una cadena con los datos
+        datos = f"Nombres: {nombres}\nApellidos: {apellidos}\nEdad: {edad} años\nEstatura: {estatura} cm\nTeléfono: {telefono}\nGénero: {genero}"
+
+        # Guardar los datos en un archivo de texto
+        with open("datos99.txt", "a") as archivo:
+            archivo.write(datos + "\n\n")
+
+        # Mostrar un mensaje con los datos capturados
+        messagebox.showinfo("Información", "Datos guardados con éxito:\n\n" + datos)
+        # Limpiar los controles después de guardar
+        limpiar_campos()
+    else:
+        messagebox.showerror("Error", "por favor, ingrese datos validos en los campos")
+
+def es_entero_valido(valor):
+    try:
+        int(valor)
+        return True
+    except ValueError:
+        return False
+def es_decimal_valido(valor):
+    try:
+        float(valor)
+        return True
+    except ValueError:
+        return False
+def es_entero_valido_de_10_digitos(valor):
+    return valor.isdigit() and len(valor) == 10
+def es_texto_valido(valor):
+    return bool(re.match(r"^[a-zA-Z ]+$", valor))
 
 # Crear la ventana principal
 ventana = tk.Tk()
@@ -82,7 +105,7 @@ btn_guardar = tk.Button(ventana, text="Guardar", command=guardar_datos)
 btn_guardar.pack()
 
 # Botón para borrar campos
-btn_borrar = tk.Button(ventana, text="Borrar", command=borrar_campos)
+btn_borrar = tk.Button(ventana, text="Borrar", command=limpiar_campos)
 btn_borrar.pack()
 
 # Iniciar aplicación
